@@ -1,11 +1,14 @@
 # AGENTS.md
 
-Command-line generator of classic 9x9 sudoku puzzles that writes them to a
-printable A4 PDF. Usage and difficulty levels are in [README.md](README.md).
+Command-line generator of sudoku puzzles (4x4, 6x6, 8x8 or the classic 9x9)
+that writes them to a printable A4 PDF. Usage and difficulty levels are in [README.md](README.md).
 
 ## Layout
 
 - `sudoku.py`: the whole program, in sections:
+  - `BOX_SHAPES`, `geometry()`: supported sizes and the cached units and
+    lookup tables of each; the functions below take the size from the length
+    of the grid list.
   - `search()`: bitmask backtracking solver; counts solutions (up to a limit)
     and, with an `rng`, builds random full grids.
   - `solve_logically()`: human-style solver used to grade difficulty
@@ -23,7 +26,9 @@ printable A4 PDF. Usage and difficulty levels are in [README.md](README.md).
 - Standard library only, Python 3.10+. Don't add dependencies.
 - Every puzzle must have exactly one solution, and its level must follow from
   the techniques in `solve_logically()`, not from the number of givens alone
-  (except easy, which also stops at `EASY_GIVENS`).
+  (except easy, which also stops at `EASY_FILL` of the cells given).
+- Hard and expert are only offered for size 9 (`main()` refuses them for
+  smaller sizes; `generate()` would retry forever on 4x4).
 - PDF text uses the built-in Helvetica fonts with WinAnsi encoding, so strings
   must be Latin-1 encodable.
 
