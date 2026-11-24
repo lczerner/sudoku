@@ -24,3 +24,7 @@ needed to solve it:
 4, 6, 8 or 9 (default), with boxes of 2x2, 2x3, 2x4 and 3x3. Sizes 5 and 7
 have no rectangular boxes, so they are not offered. Hard and expert are only
 available on 9x9; smaller grids rarely or never need more than singles.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

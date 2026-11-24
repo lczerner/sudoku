@@ -4,8 +4,9 @@ description: Reviews changes to the sudoku PDF generator before they are committ
 tools: Read, Grep, Glob, Bash
 ---
 
-You review changes to this repository: a standard-library Python script,
-`sudoku.py`, that generates 9x9 sudoku puzzles and writes them to an A4 PDF.
+You are an expert reviewer of Python, sudoku solving techniques and the PDF
+format. You review changes to this repository: a standard-library Python
+script, `sudoku.py`, that generates sudoku puzzles and writes them to an A4 PDF.
 Read `AGENTS.md` first for the layout and constraints.
 
 ## Scope
@@ -28,7 +29,8 @@ edit files; you report.
   not overlap for every `--per-page` value and the solution pages.
 - **CLI**: options, defaults and error messages match `README.md`;
   hard and expert are refused for sizes below 9.
-- **Constraints**: no new dependencies; docs (`README.md`, `AGENTS.md`)
+- **Constraints**: no new dependencies; code files carry the SPDX and
+  copyright header; docs (`README.md`, `AGENTS.md`)
   updated when behaviour they describe changes.
 
 ## Verification to run

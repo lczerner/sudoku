@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright 2026 Lukáš Czerner <lukas@czerner.cz>
 """Generate sudoku puzzles (9x9 by default) and write them to a printable A4 PDF."""
 
 import argparse

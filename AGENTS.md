@@ -31,6 +31,13 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
   smaller sizes; `generate()` would retry forever on 4x4).
 - PDF text uses the built-in Helvetica fonts with WinAnsi encoding, so strings
   must be Latin-1 encodable.
+- MIT licensed ([LICENSE](LICENSE)). Every code file starts (after any
+  shebang) with:
+
+  ```
+  # SPDX-License-Identifier: MIT
+  # Copyright 2026 Lukáš Czerner <lukas@czerner.cz>
+  ```
 
 ## Running
 
@@ -43,8 +50,8 @@ There is no test suite; the verification steps live in the reviewer agent.
 ## Before every commit
 
 1. Stage the changes.
-2. Run the `sudoku-reviewer` subagent on the staged diff (on a repository with
-   no commits yet, on all staged files).
+2. Have the staged diff reviewed by an expert: run the `sudoku-reviewer`
+   subagent on it (on a repository with no commits yet, on all staged files).
 3. Fix the real problems it reports, re-run it if the fixes were non-trivial,
    then commit.
 
