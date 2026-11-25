@@ -69,7 +69,7 @@ def read_pdf_grids(path, n):
     of rows) they precede, counted from the top-left corner."""
     data = Path(path).read_bytes().decode("latin-1")
     grids, lines = [], []
-    for stream in re.findall(r"stream\n(.*?)\nendstream", data, re.S):
+    for stream in re.findall(r"stream\n(.*?)\nendstream", data, re.DOTALL):
         for line in stream.splitlines():
             # draw_grid() draws the inner lines, then the outline, then the digits.
             if m := re.search(r"^([\d.]+) w ([\d.]+) ([\d.]+) m ([\d.]+) ([\d.]+) l S$", line):
@@ -98,9 +98,9 @@ def read_pdf_pages(path):
     """(number of grids, smallest digit font size) of each page of a PDF
     written by sudoku.PDF."""
     data = Path(path).read_bytes().decode("latin-1")
-    return [(len(re.findall(r" re S$", stream, re.M)),
+    return [(len(re.findall(r" re S$", stream, re.MULTILINE)),
              min(map(float, re.findall(r"/F\d ([\d.]+) Tf [\d.]+ [\d.]+ Td \(\d+\) Tj", stream))))
-            for stream in re.findall(r"stream\n(.*?)\nendstream", data, re.S)]
+            for stream in re.findall(r"stream\n(.*?)\nendstream", data, re.DOTALL)]
 
 
 def levels(n):

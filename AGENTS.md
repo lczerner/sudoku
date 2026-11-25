@@ -27,7 +27,9 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
 
 ## Constraints
 
-- Standard library only, Python 3.10+. Don't add dependencies.
+- Standard library only, Python 3.10+. Don't add dependencies. The one
+  development tool is ruff for `make lint`, installed separately (for example
+  `uv tool install ruff`).
 - Every puzzle must have exactly one solution, and its level must follow from
   the techniques in `solve_logically()`, not from the number of givens alone
   (except easy, which also stops at `EASY_FILL` of the cells given).
@@ -49,15 +51,18 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
 ./sudoku.py -d hard -n 6 -o /tmp/test.pdf
 ```
 
-Tests: `python3 -m unittest` (stdlib only, a few seconds). Further
-verification steps live in the reviewer agent.
+`make test` runs the test suite (stdlib only, a few seconds), `make lint`
+runs ruff, `make clean` removes generated files; `make` lists
+the targets. Further verification steps live in the reviewer agent.
 
 ## Before every commit
 
-1. Stage the changes.
-2. Have the staged diff reviewed by an expert: run the `sudoku-reviewer`
+1. Run `make test` and `make lint`; fix what fails until both pass.
+2. Stage the changes.
+3. Have the staged diff reviewed by an expert: run the `sudoku-reviewer`
    subagent on it (on a repository with no commits yet, on all staged files).
-3. Fix the real problems it reports, re-run it if the fixes were non-trivial,
-   then commit.
+4. Fix the real problems it reports, run `make test` and `make lint` again,
+   re-run the review if the fixes were non-trivial, then commit.
 
-Do not commit without a review of the exact changes being committed.
+Do not commit without passing tests and lint and a review of the exact
+changes being committed.

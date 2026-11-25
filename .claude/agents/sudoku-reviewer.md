@@ -37,8 +37,8 @@ edit files; you report.
 
 Write scratch files under a temporary directory, never in the repository.
 
-1. Tests: run `python3 -m unittest` in the repository and delete the
-   `__pycache__` it creates afterwards. If the change affects puzzle
+1. Tests: `make test` and `make lint` have passed before the review starts
+   (see `AGENTS.md`), so don't re-run them. If the change affects puzzle
    correctness, grading or PDF output, check that `test_sudoku.py` still
    covers it.
 
