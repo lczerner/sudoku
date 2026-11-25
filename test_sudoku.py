@@ -94,6 +94,15 @@ def read_pdf_grids(path, n):
     return [(givens, digits, borders) for *_, givens, digits, borders in grids]
 
 
+def read_pdf_pages(path):
+    """(number of grids, smallest digit font size) of each page of a PDF
+    written by sudoku.PDF."""
+    data = Path(path).read_bytes().decode("latin-1")
+    return [(len(re.findall(r" re S$", stream, re.M)),
+             min(map(float, re.findall(r"/F\d ([\d.]+) Tf [\d.]+ [\d.]+ Td \(\d+\) Tj", stream))))
+            for stream in re.findall(r"stream\n(.*?)\nendstream", data, re.S)]
+
+
 def levels(n):
     return sudoku.LEVELS if n == 9 else ("easy", "medium")
 
@@ -129,13 +138,19 @@ class GenerateTest(unittest.TestCase):
 class PDFTest(unittest.TestCase):
     """Generate PDFs and check the puzzles as printed, not just as generated."""
 
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.out = Path(tmp.name, "out.pdf")
+
+    def run_sudoku(self, n, level, count, *args, check=True):
+        return subprocess.run([sys.executable, SCRIPT, "-s", str(n), "-d", level,
+                               "-n", str(count), "--seed", "3", "-o", self.out, *args],
+                              check=check, capture_output=True)
+
     def check_pdf(self, n, level, count=6):
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp, "out.pdf")
-            subprocess.run([sys.executable, SCRIPT, "-s", str(n), "-d", level,
-                            "-n", str(count), "--seed", "3", "-o", out],
-                           check=True, capture_output=True)
-            grids = read_pdf_grids(out, n)
+        self.run_sudoku(n, level, count)
+        grids = read_pdf_grids(self.out, n)
         self.assertEqual(len(grids), 2 * count)
         bh, bw = sudoku.BOX_SHAPES[n]
         borders = ({k for k in range(1, n) if k % bw == 0},
@@ -155,6 +170,21 @@ class PDFTest(unittest.TestCase):
             for level in levels(n):
                 with self.subTest(size=n, level=level):
                     self.check_pdf(n, level)
+
+    def test_default_per_page(self):
+        """Without --per-page, a page holds as many puzzles as fit with digits
+        of at least MIN_FONT; asking for more per page is refused."""
+        for n in sudoku.BOX_SHAPES:
+            with self.subTest(size=n):
+                most = sudoku.max_per_page(n)
+                self.run_sudoku(n, "easy", most + 1, "--no-solutions")
+                pages = read_pdf_pages(self.out)
+                self.assertEqual([grids for grids, _ in pages], [most, 1])
+                self.assertGreaterEqual(min(font for _, font in pages), sudoku.MIN_FONT)
+                self.run_sudoku(n, "easy", most, "--no-solutions", "-p", str(most - 1))
+                self.assertEqual([grids for grids, _ in read_pdf_pages(self.out)], [most - 1, 1])
+                refused = self.run_sudoku(n, "easy", 1, "-p", str(most + 1), check=False)
+                self.assertEqual(refused.returncode, 2)
 
 
 if __name__ == "__main__":

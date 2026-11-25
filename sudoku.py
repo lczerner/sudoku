@@ -16,6 +16,9 @@ BOX_SHAPES = {4: (2, 2), 6: (2, 3), 8: (2, 4), 9: (3, 3)}
 
 LEVELS = ("easy", "medium", "hard", "expert")
 EASY_FILL = 0.47  # share of cells given in an easy puzzle (38 on 9x9)
+MIN_FONT = 14  # smallest digit size on puzzle pages in points; cells of about 8 mm
+DIGIT_SCALE = 0.6  # digit font size relative to the cell
+MARGIN, GAP = 36, 24  # page margin and minimum space between grids, in points
 
 
 @cache
@@ -269,7 +272,7 @@ def draw_grid(pdf, x, y, size, puzzle, solution=None):
         pdf.line(x, y + k * cell, x + size, y + k * cell, horizontal)
     pdf.rect(x, y, size, size, thick)
 
-    fs = cell * 0.6
+    fs = cell * DIGIT_SCALE
     for i in range(n * n):
         digit = puzzle[i] or (solution[i] if solution else 0)
         if digit:
@@ -279,24 +282,41 @@ def draw_grid(pdf, x, y, size, puzzle, solution=None):
                      str(digit), fs, bold=bool(puzzle[i]), gray=0 if puzzle[i] else 0.45)
 
 
-def render(pdf, entries, cols, rows, margin=36, gap=24, label_size=11):
-    """Lay out (label, puzzle, solution) entries, cols x rows per page."""
-    per_page = cols * rows
-    slot_w = (pdf.W - 2 * margin) / cols
-    slot_h = (pdf.H - 2 * margin) / rows
+def grid_size(cols, rows, label_size=11):
+    """Side of each grid when a page holds cols x rows of them."""
+    return min((PDF.W - 2 * MARGIN) / cols - GAP,
+               (PDF.H - 2 * MARGIN) / rows - GAP - label_size * 1.8)
+
+
+def layout(per_page):
+    """(cols, rows) that fits per_page grids on a page with the most room for each."""
+    return max(((cols, -(-per_page // cols)) for cols in range(1, per_page + 1)),
+               key=lambda cr: grid_size(*cr))
+
+
+def max_per_page(n):
+    """Most n x n puzzles that fit on a page with digits of at least MIN_FONT."""
+    per_page = 1
+    while grid_size(*layout(per_page + 1)) / n * DIGIT_SCALE >= MIN_FONT:
+        per_page += 1
+    return per_page
+
+
+def render(pdf, entries, per_page, label_size=11):
+    """Lay out (label, puzzle, solution) entries, per_page on each page."""
+    cols, rows = layout(per_page)
+    slot_w = (pdf.W - 2 * MARGIN) / cols
+    slot_h = (pdf.H - 2 * MARGIN) / rows
     label_h = label_size * 1.8
-    size = min(slot_w - gap, slot_h - gap - label_h)
+    size = grid_size(cols, rows, label_size)
     for n, (label, puzzle, solution) in enumerate(entries):
         if n % per_page == 0:
             pdf.add_page()
         col, row = n % cols, n % per_page // cols
-        left = margin + (col + 0.5) * slot_w - size / 2
-        top = pdf.H - margin - row * slot_h - (slot_h - size - label_h) / 2
+        left = MARGIN + (col + 0.5) * slot_w - size / 2
+        top = pdf.H - MARGIN - row * slot_h - (slot_h - size - label_h) / 2
         pdf.text(left, top - label_size, label, label_size, bold=True)
         draw_grid(pdf, left, top - label_h - size, size, puzzle, solution)
-
-
-LAYOUTS = {1: (1, 1), 2: (1, 2), 4: (2, 2), 6: (2, 3)}
 
 
 def main():
@@ -306,8 +326,9 @@ def main():
     ap.add_argument("-s", "--size", type=int, choices=sorted(BOX_SHAPES), default=9,
                     help="numbers per row, column and box (default 9)")
     ap.add_argument("-n", "--count", type=int, default=4, help="number of puzzles (default 4)")
-    ap.add_argument("-p", "--per-page", type=int, choices=sorted(LAYOUTS), default=4,
-                    help="puzzles per page (default 4)")
+    ap.add_argument("-p", "--per-page", type=int,
+                    help=f"puzzles per page (default: as many as fit with digits of "
+                         f"at least {MIN_FONT} pt)")
     ap.add_argument("-o", "--output", default="sudoku.pdf", help="output file (default sudoku.pdf)")
     ap.add_argument("--no-solutions", action="store_true", help="leave out the solution pages")
     ap.add_argument("--seed", type=int, help="random seed, for reproducible output")
@@ -316,6 +337,12 @@ def main():
         ap.error("--count must be at least 1")
     if args.size < 9 and args.difficulty in ("hard", "expert"):
         ap.error(f"{args.difficulty} puzzles need --size 9; smaller grids are easy or medium")
+    most = max_per_page(args.size)
+    if args.per_page is None:
+        args.per_page = most
+    elif not 1 <= args.per_page <= most:
+        ap.error(f"--per-page must be 1 to {most} for --size {args.size}, "
+                 f"so that digits stay at least {MIN_FONT} pt")
 
     rng = random.Random(args.seed)
     games = []
@@ -327,10 +354,10 @@ def main():
     level = args.difficulty.capitalize()
     pdf = PDF()
     render(pdf, [(f"#{n}  {level}", p, None) for n, (p, _) in enumerate(games, 1)],
-           *LAYOUTS[args.per_page])
+           args.per_page)
     if not args.no_solutions:
         render(pdf, [(f"Solution #{n}", p, s) for n, (p, s) in enumerate(games, 1)],
-               3, 4, label_size=9)
+               12, label_size=9)
     pdf.save(args.output)
     print(f"Wrote {args.count} {args.difficulty} puzzle(s) to {args.output}")
 

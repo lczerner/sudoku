@@ -17,7 +17,8 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
     while the puzzle stays solvable at the target level, and retries until the
     grading matches.
   - `PDF`: minimal hand-written PDF writer (lines, rectangles, Helvetica text).
-  - `draw_grid()`, `render()`, `LAYOUTS`: page layout of puzzles and solutions.
+  - `draw_grid()`, `render()`: page layout of puzzles and solutions;
+    `layout()`, `max_per_page()`: grids per page, keeping digits at least `MIN_FONT`.
   - `main()`: CLI.
 - `test_sudoku.py`: unittest suite; checks that generated puzzles, and the
   puzzles as printed in a generated PDF, have exactly one valid solution and

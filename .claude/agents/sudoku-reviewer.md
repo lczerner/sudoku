@@ -42,9 +42,9 @@ Write scratch files under a temporary directory, never in the repository.
    correctness, grading or PDF output, check that `test_sudoku.py` still
    covers it.
 
-2. PDF check: generate a PDF for each `--per-page` value (1, 2, 4, 6) with
-   solutions, and one for each `--size`. Run `qpdf --check` on each, render
-   pages with `pdftoppm -r 60 -png` and look at the images for clipped,
+2. PDF check: generate a PDF for `--per-page` 1 to 6 with solutions, and a
+   full page at the default `--per-page` for each `--size`. Run `qpdf --check`
+   on each, render pages with `pdftoppm -r 60 -png` and look at the images for clipped,
    overlapping or misaligned grids, digits and labels. Box borders are hard to
    see at 60 dpi; check them on a crop rendered at about 200 dpi.
 
