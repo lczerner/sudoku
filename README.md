@@ -1,11 +1,11 @@
 # Sudoku PDF generator
 
-Generates sudoku puzzles and writes them to a printable A4 PDF, with
-solution pages at the end. Needs only Python 3.10+, no extra packages.
+Generates sudoku puzzles and writes them to a printable A4 PDF, optionally
+with solution pages at the end. Needs only Python 3.10+, no extra packages.
 
 ```
 ./sudoku.py -d hard -n 8            # 8 hard puzzles -> sudoku.pdf
-./sudoku.py -d easy -n 2 -p 1 -o easy.pdf --no-solutions
+./sudoku.py -d easy -n 2 -p 1 -o easy.pdf --solutions
 ./sudoku.py -s 6 -n 6 -p 6          # 6x6 puzzles using numbers 1-6
 ./sudoku.py --help
 ```

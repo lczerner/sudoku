@@ -330,7 +330,7 @@ def main():
                     help=f"puzzles per page (default: as many as fit with digits of "
                          f"at least {MIN_FONT} pt)")
     ap.add_argument("-o", "--output", default="sudoku.pdf", help="output file (default sudoku.pdf)")
-    ap.add_argument("--no-solutions", action="store_true", help="leave out the solution pages")
+    ap.add_argument("--solutions", action="store_true", help="add solution pages at the end")
     ap.add_argument("--seed", type=int, help="random seed, for reproducible output")
     args = ap.parse_args()
     if args.count < 1:
@@ -355,7 +355,7 @@ def main():
     pdf = PDF()
     render(pdf, [(f"#{n}  {level}", p, None) for n, (p, _) in enumerate(games, 1)],
            args.per_page)
-    if not args.no_solutions:
+    if args.solutions:
         render(pdf, [(f"Solution #{n}", p, s) for n, (p, s) in enumerate(games, 1)],
                12, label_size=9)
     pdf.save(args.output)

@@ -149,7 +149,7 @@ class PDFTest(unittest.TestCase):
                               check=check, capture_output=True)
 
     def check_pdf(self, n, level, count=6):
-        self.run_sudoku(n, level, count)
+        self.run_sudoku(n, level, count, "--solutions")
         grids = read_pdf_grids(self.out, n)
         self.assertEqual(len(grids), 2 * count)
         bh, bw = sudoku.BOX_SHAPES[n]
@@ -177,11 +177,11 @@ class PDFTest(unittest.TestCase):
         for n in sudoku.BOX_SHAPES:
             with self.subTest(size=n):
                 most = sudoku.max_per_page(n)
-                self.run_sudoku(n, "easy", most + 1, "--no-solutions")
+                self.run_sudoku(n, "easy", most + 1)
                 pages = read_pdf_pages(self.out)
                 self.assertEqual([grids for grids, _ in pages], [most, 1])
                 self.assertGreaterEqual(min(font for _, font in pages), sudoku.MIN_FONT)
-                self.run_sudoku(n, "easy", most, "--no-solutions", "-p", str(most - 1))
+                self.run_sudoku(n, "easy", most, "-p", str(most - 1))
                 self.assertEqual([grids for grids, _ in read_pdf_pages(self.out)], [most - 1, 1])
                 refused = self.run_sudoku(n, "easy", 1, "-p", str(most + 1), check=False)
                 self.assertEqual(refused.returncode, 2)
