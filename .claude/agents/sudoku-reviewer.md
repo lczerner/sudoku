@@ -37,29 +37,10 @@ edit files; you report.
 
 Write scratch files under a temporary directory, never in the repository.
 
-1. Puzzle check, for every size and the levels it offers:
-
-   ```
-   python3 - <<'EOF'
-   import random, sudoku as s
-   rng = random.Random(1)
-   for n in s.BOX_SHAPES:
-       for level in s.LEVELS if n == 9 else ("easy", "medium"):
-           for _ in range(8):
-               p, sol = s.generate(level, rng, n)
-               assert len(p) == n * n and s.search(p, 2)[0] == 1
-               assert all(p[i] in (0, sol[i]) for i in range(n * n))
-               for u in s.geometry(n).units:
-                   assert sorted(sol[i] for i in u) == list(range(1, n + 1))
-               singles, adv = s.solve_logically(p, False), s.solve_logically(p, True)
-               assert {"easy": singles, "medium": singles,
-                       "hard": adv and not singles, "expert": not adv}[level], (n, level)
-   print("ok")
-   EOF
-   ```
-
-   Run it with the repository as the working directory and delete the
-   `__pycache__` it creates afterwards.
+1. Tests: run `python3 -m unittest` in the repository and delete the
+   `__pycache__` it creates afterwards. If the change affects puzzle
+   correctness, grading or PDF output, check that `test_sudoku.py` still
+   covers it.
 
 2. PDF check: generate a PDF for each `--per-page` value (1, 2, 4, 6) with
    solutions, and one for each `--size`. Run `qpdf --check` on each, render

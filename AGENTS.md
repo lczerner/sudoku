@@ -19,6 +19,9 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
   - `PDF`: minimal hand-written PDF writer (lines, rectangles, Helvetica text).
   - `draw_grid()`, `render()`, `LAYOUTS`: page layout of puzzles and solutions.
   - `main()`: CLI.
+- `test_sudoku.py`: unittest suite; checks that generated puzzles, and the
+  puzzles as printed in a generated PDF, have exactly one valid solution and
+  the right level.
 - `.claude/agents/sudoku-reviewer.md`: the review subagent (see below).
 
 ## Constraints
@@ -45,7 +48,8 @@ that writes them to a printable A4 PDF. Usage and difficulty levels are in [READ
 ./sudoku.py -d hard -n 6 -o /tmp/test.pdf
 ```
 
-There is no test suite; the verification steps live in the reviewer agent.
+Tests: `python3 -m unittest` (stdlib only, a few seconds). Further
+verification steps live in the reviewer agent.
 
 ## Before every commit
 
